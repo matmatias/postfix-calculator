@@ -1,32 +1,32 @@
 exports.calculate = function (expression) {
   const tokens = expression.split(" ");
-  const operandsQueue = [];
-  const operatorsStack = [];
+  const stack = [];
 
   for (let token of tokens) {
-    if (!isNaN(token)) {
-      operandsQueue.push(parseFloat(token));
+    stack.push(token);
+
+    if (stack.length >= 3) {
+      while (
+        !isNaN(stack.at(-1)) &&
+        !isNaN(stack.at(-2)) &&
+        isOperator(stack.at(-3))
+      ) {
+        const operand2 = stack.pop();
+        const operand1 = stack.pop();
+        const operator = stack.pop();
+
+        const result = applyOperator(
+          parseInt(operand1),
+          parseInt(operand2),
+          operator
+        );
+
+        stack.push(result);
+      }
     }
-    if (isOperator(token)) {
-      operatorsStack.push(token);
-    }
   }
 
-  while (operandsQueue.length > 1 && operatorsStack.length > 0) {
-    const operator = operatorsStack.pop();
-
-    const operand2 = operandsQueue.shift();
-    const operand1 = operandsQueue.shift();
-    const result = applyOperator(operand1, operand2, operator);
-
-    operandsQueue.push(result);
-  }
-
-  if (operandsQueue.length === 1) {
-    return operandsQueue[0];
-  }
-
-  return 0;
+  return stack[0];
 };
 
 function isOperator(token) {
@@ -40,12 +40,12 @@ function isOperator(token) {
 function applyOperator(operand1, operand2, operator) {
   switch (operator) {
     case "+":
-      operand1 + operand2;
+      return operand1 + operand2;
     case "-":
-      operand1 - operand2;
+      return operand1 - operand2;
     case "*":
-      operand1 * operand2;
+      return operand1 * operand2;
     case "/":
-      operand1 / operand2;
+      return operand1 / operand2;
   }
 }
